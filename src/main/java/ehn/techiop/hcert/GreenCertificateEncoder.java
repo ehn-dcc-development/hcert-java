@@ -1,4 +1,4 @@
-package eu.interop;
+package ehn.techiop.hcert;
 
 import COSE.Attribute;
 import COSE.AlgorithmID;
@@ -33,7 +33,6 @@ public class GreenCertificateEncoder {
      * @throws IOException
      */
     public String encode(String json) throws CoseException, CompressorException, IOException {
-        System.out.println("Json size: " + json.length());
 
         byte[] cborBytes = getCborBytes(json);
 
@@ -41,15 +40,12 @@ public class GreenCertificateEncoder {
 
         byte[] deflateBytes = getDeflateBytes(coseBytes);
 
-        String base45 = getBase45(deflateBytes);
-        return base45;
+        return getBase45(deflateBytes);
     }
 
     private String getBase45(byte[] deflateBytes) throws UnsupportedEncodingException {
-        String base45 = Base45.encode(deflateBytes);
 
-        System.out.println("Base45 size: " + base45.getBytes("UTF-8").length);
-        return base45;
+        return Base45.encode(deflateBytes);
     }
 
     private byte[] getDeflateBytes(byte[] messageBytes) throws CompressorException, IOException {
@@ -59,10 +55,8 @@ public class GreenCertificateEncoder {
 
         deflateOut.write(messageBytes);
         deflateOut.close();
-        byte[] deflateBytes = deflateOutputStream.toByteArray();
 
-        System.out.println("Deflate size: " + deflateBytes.length);
-        return deflateBytes;
+        return deflateOutputStream.toByteArray();
     }
 
     private byte[] getCOSEBytes(byte[] cborBytes) throws CoseException {
@@ -71,17 +65,12 @@ public class GreenCertificateEncoder {
         msg.SetContent(cborBytes);
         msg.sign(privateKey);
 
-        byte[] messageBytes = msg.EncodeToBytes();
-
-        System.out.println("COSE size: " + messageBytes.length);
-        return messageBytes;
+        return msg.EncodeToBytes();
     }
 
     private byte[] getCborBytes(String json) {
         CBORObject cborObject = CBORObject.FromJSONString(json);
-        byte[] cborBytes = cborObject.EncodeToBytes();
 
-        System.out.println("CBOR size: " + cborBytes.length);
-        return cborBytes;
+        return cborObject.EncodeToBytes();
     }
 }
