@@ -11,6 +11,7 @@ import org.apache.commons.compress.compressors.CompressorException;
 import org.apache.commons.compress.compressors.CompressorOutputStream;
 import org.apache.commons.compress.compressors.CompressorStreamFactory;
 
+import nl.minvws.encoding.Base45;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -45,7 +46,7 @@ public class GreenCertificateEncoder {
 
     private String getBase45(byte[] deflateBytes) throws UnsupportedEncodingException {
 
-        return Base45.encode(deflateBytes);
+        return Base45.getEncoder().encodeToString(deflateBytes);
     }
 
     private byte[] getDeflateBytes(byte[] messageBytes) throws CompressorException, IOException {

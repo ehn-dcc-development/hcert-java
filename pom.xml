@@ -41,6 +41,12 @@
     </dependency>
 
     <dependency>
+      <groupId>io.github.ehn-digital-green-development</groupId>
+      <artifactId>base45</artifactId>
+      <version>0.0.3</version>
+    </dependency>
+
+    <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
       <version>2.12.2</version>

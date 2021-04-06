@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.ECPoint;
+
+import nl.minvws.encoding.Base45;
 import org.apache.commons.compress.compressors.CompressorException;
 import org.apache.commons.compress.compressors.CompressorInputStream;
 import org.apache.commons.compress.compressors.CompressorStreamFactory;
@@ -76,7 +78,7 @@ public class GreenCertificateDecoder {
    * @throws CoseException
    */
   public String decode(String base45String) throws CompressorException, IOException, CoseException {
-    byte[] decodedBytes = Base45.decode(base45String);
+    byte[] decodedBytes = Base45.getDecoder().decode(base45String);
 
     byte[] coseBytes = getCoseBytes(decodedBytes);
 
