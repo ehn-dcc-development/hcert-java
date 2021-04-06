@@ -44,18 +44,18 @@ public class GreenCertificateEncoder {
         return getBase45(deflateBytes);
     }
 
-    private String getBase45(byte[] deflateBytes) throws UnsupportedEncodingException {
+    private String getBase45(byte[] deflateBytes) {
 
         return Base45.getEncoder().encodeToString(deflateBytes);
     }
 
     private byte[] getDeflateBytes(byte[] messageBytes) throws CompressorException, IOException {
         ByteArrayOutputStream deflateOutputStream = new ByteArrayOutputStream();
-        CompressorOutputStream deflateOut = new CompressorStreamFactory()
-                .createCompressorOutputStream(CompressorStreamFactory.DEFLATE, deflateOutputStream);
+        try (CompressorOutputStream deflateOut = new CompressorStreamFactory()
+                .createCompressorOutputStream(CompressorStreamFactory.DEFLATE, deflateOutputStream)) {
 
-        deflateOut.write(messageBytes);
-        deflateOut.close();
+            deflateOut.write(messageBytes);
+        }
 
         return deflateOutputStream.toByteArray();
     }
