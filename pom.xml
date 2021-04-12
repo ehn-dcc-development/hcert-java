@@ -105,10 +105,11 @@
                 <executions>
                     <execution>
                         <id>get-schema-yml</id>
-                        <phase>compile</phase>
+                        <phase>generate-sources</phase>
                         <goals>
                             <goal>wget</goal>
                         </goals>
+
                     </execution>
                 </executions>
                 <configuration>
@@ -134,6 +135,7 @@
                 </configuration>
                 <executions>
                     <execution>
+                        <phase>generate-sources</phase>
                         <goals>
                             <goal>generate</goal>
                         </goals>
