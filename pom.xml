@@ -6,7 +6,7 @@
     <artifactId>hcert</artifactId>
     <packaging>jar</packaging>
     <version>0.9.5</version>
-    <name>hcert-java</name>
+    <name>hcert</name>
     <url>https://github.com/ehn-digital-green-development/hcert-java</url>
     <licenses>
         <license>
