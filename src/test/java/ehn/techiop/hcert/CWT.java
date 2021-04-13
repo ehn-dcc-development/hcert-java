@@ -1,29 +1,21 @@
 package ehn.techiop.hcert;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import ehn.techiop.hcert.schema.EuHcertV1Schema;
 
 public class CWT {
 
-    @JsonProperty("hcert")
-    private EuHcertV1Schema euHcertV1Schema;
-
-    @JsonProperty("iss")
+    @JsonProperty("1")
     private String iss;
 
-    @JsonProperty("iat")
+    @JsonProperty("6")
     private long iat;
 
-    @JsonProperty("exp")
+    @JsonProperty("4")
     private long exp;
 
-    public EuHcertV1Schema getEuHcertV1Schema() {
-        return euHcertV1Schema;
-    }
+    @JsonProperty("-260")
+    private Hcert hcert;
 
-    public void setEuHcertV1Schema(EuHcertV1Schema euHcertV1Schema) {
-        this.euHcertV1Schema = euHcertV1Schema;
-    }
 
     public String getIss() {
         return iss;
@@ -47,5 +39,13 @@ public class CWT {
 
     public void setExp(long exp) {
         this.exp = exp;
+    }
+
+    public Hcert getHcert() {
+        return hcert;
+    }
+
+    public void setHcert(Hcert hcert) {
+        this.hcert = hcert;
     }
 }

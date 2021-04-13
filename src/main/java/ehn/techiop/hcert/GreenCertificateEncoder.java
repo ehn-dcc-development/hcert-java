@@ -51,7 +51,7 @@ public class GreenCertificateEncoder {
 
     private String getBase45(byte[] deflateBytes) {
 
-        return Base45.getEncoder().encodeToString(deflateBytes);
+        return "HC1" + Base45.getEncoder().encodeToString(deflateBytes);
     }
 
     private byte[] getDeflateBytes(byte[] messageBytes) throws CompressorException, IOException {

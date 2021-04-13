@@ -36,6 +36,10 @@ public class GreenCertificateDecoder {
    * @throws CoseException
    */
   public String decode(String base45String) throws CompressorException, IOException, CoseException {
+    if(!base45String.startsWith("HC1"))
+      throw new RuntimeException("Base45 string not valid according to specification");
+
+    base45String = base45String.substring(3);
     byte[] decodedBytes = Base45.getDecoder().decode(base45String);
 
     byte[] coseBytes = getCoseBytes(decodedBytes);

@@ -11,6 +11,7 @@ import ehn.techiop.hcert.schema.EuHcertV1Schema;
 import ehn.techiop.hcert.schema.Sub;
 import ehn.techiop.hcert.schema.Tst;
 import ehn.techiop.hcert.schema.Vac;
+
 import java.io.IOException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+
 import org.apache.commons.compress.compressors.CompressorException;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.jupiter.api.BeforeAll;
@@ -65,7 +67,9 @@ public class CertificateTest {
                 .withVac(vacs);
 
         CWT cwt = new CWT();
-        cwt.setEuHcertV1Schema(euvac);
+        Hcert hcert = new Hcert();
+        hcert.setEuHcertV1Schema(euvac);
+        cwt.setHcert(hcert);
         cwt.setExp(new Date().getTime() / 1000);
         cwt.setIat(new Date().getTime() / 1000);
         cwt.setIss("DNK");
@@ -111,6 +115,4 @@ public class CertificateTest {
         ObjectMapper mapper = new ObjectMapper();
         assertEquals(mapper.readTree(json), mapper.readTree(result));
     }
-
-
 }
