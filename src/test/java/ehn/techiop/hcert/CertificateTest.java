@@ -39,22 +39,22 @@ public class CertificateTest {
         cborPrivateKey = OneKey.generateKey(AlgorithmID.ECDSA_256);
         cborPublicKey = cborPrivateKey.PublicKey();
 
-        List<Tst> tests = new ArrayList<>();
+
         List<Vac> vacs = new ArrayList<>();
 
-        tests.add(new Tst()
-                .withDis("Covid-19")
+        Tst tests = new Tst()
+                .withDis("840539006")
                 .withTyp("LP6464-4")
                 .withTna("Nucleic acid amplification with probe detection")
                 .withTma("BIOSYNEX SWISS SA BIOSYNEX COVID-19 Ag BSS")
                 .withOri("258500001")
-                .withDat("2021-02-20")
-                .withRes(false)
+                .withDtr(new Date())
+                .withDts(new Date())
+                .withRes("1240591000000102")
                 .withFac("Region Midtjylland")
-                .withCou("DNK"));
+                .withCou("DNK");
         vacs.add(new Vac()
-                .withDes("J07BX03")
-                .withNam("COMIRNATY")
+                .withDis("840539006")
                 .withAut("Pfizer BioNTech")
                 .withSeq(1)
                 .withTot(2)
@@ -62,7 +62,7 @@ public class CertificateTest {
                 .withAdm("Region Halland"));
 
         EuHcertV1Schema euvac = new EuHcertV1Schema()
-                .withSub(new Sub().withN("Gaby Doe"))
+                .withSub(new Sub().withGn("Gaby").withFn("Doe"))
                 .withTst(tests)
                 .withVac(vacs);
 
