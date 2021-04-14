@@ -5,7 +5,7 @@
     <groupId>io.github.ehn-digital-green-development</groupId>
     <artifactId>hcert</artifactId>
     <packaging>jar</packaging>
-    <version>0.9.5</version>
+    <version>0.9.6</version>
     <name>hcert</name>
     <url>https://github.com/ehn-digital-green-development/hcert-java</url>
     <licenses>
