@@ -1,10 +1,10 @@
 ---
-$schema: http://json-schema.org/draft/2020-12/schema
+$schema: http://json-schema.org/draft/2020-12/schema#
 $id: https://github.com/ehn-digital-green-development/hcert-schema/eu_hcert_v1
 
 title: DGC - Digital Green Certificate
-description: Proof of vaccination, test results or recovery according to EU eHN, version 1.0, including certificate metadata;
-  According to
+description: Proof of vaccination, test results or recovery according to EU eHN, version 1.0, including certificate metadata; 
+  According to 
   1) REGULATION OF THE EUROPEAN PARLIAMENT AND OF THE COUNCIL on a framework for the issuance, verification and acceptance of interoperable certificates on vaccination, testing and recovery to facilitate free movement during the COVID-19 pandemic (Digital Green Certificate) - https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A52021PC0130
   2) Document "Value Sets for the digital green certificate as stated in the Annex ...", abbr. "VS-2021-04-08" - https://webgate.ec.europa.eu/fpfis/wikis/x/05PuKg
 
@@ -63,7 +63,7 @@ properties:
         description: Administrative gender (optional, viz. VS-2021-04-08)
         type: string
         example: male
-
+        
   vac:
     description: Vaccination/prophylaxis information
     type: array
@@ -81,7 +81,7 @@ properties:
       properties:
         dis:
           title: Disease
-          description: Disease or agent targeted
+          description: Disease or agent targeted 
           type: string
           example: 840539006 (viz. VS-2021-04-08)
         vap:
@@ -93,12 +93,12 @@ properties:
           title: Vaccine medicinal product
           description: Code of the medicinal product
           type: string
-          example: EU/1/20/1528 (viz. VS-2021-04-08)
+          example: EU/1/20/1528 (viz. VS-2021-04-08) 
         aut:
           title: Vaccine marketing authorization holder or Vaccine manufacturer
           description: Code as defined in EMA SPOR - Organisations Management System
           type: string
-          example: ORG-100030215 (viz. VS-2021-04-08)
+          example: ORG-100030215 (viz. VS-2021-04-08) 
         seq:
           title: Dose sequence number
           description: Number of dose administered in a cycle
@@ -119,7 +119,7 @@ properties:
           example: "2021-02-20"
         cou:
           title: Country
-          description: Country (member state) of vaccination (ISO 3166 Country Code)
+          description: Country (member state) of vaccination (ISO 3166 Country Code) 
           type: string
           example: SE
         lot:
@@ -138,7 +138,7 @@ properties:
       - dis
       - typ
       - tna
-      - tma
+      - tma 
       - dts
       - dtr
       - res
@@ -146,7 +146,7 @@ properties:
       - cou
     properties:
       dis:
-        title: Disease
+        title: Disease 
         description: Disease or agent targeted
         type: string
         example: "840539006"
@@ -213,7 +213,7 @@ properties:
         example: "840539006"
       dat:
         title: Date of first positive test result
-        description: The date when the sample for the test was collected that led to a positive test result
+        description: The date when the sample for the test was collected that led to a positive test result 
         type: string
         format: date
         example: "2021-02-20"
@@ -225,7 +225,7 @@ properties:
   cert:
     description: Certificate metadata
     type: object
-    required:
+    required: 
       - is
       - id
       - vf
@@ -239,36 +239,36 @@ properties:
         description: Issuer of the DGC
         type: string
         example: Health Ministry of ...
-      id:
+      id: 
         title: Identifier
         description: Identifier of the DGC, called UVID (V for vaccinations), will maybe be renamed to DGCI?
         type: string
-        example: 01AT42196560275230427402470256520250042
-      vf:
+        example: 01AT42196560275230427402470256520250042 
+      vf: 
         title: valid from
         description: Certificate valid from (optional for vaccination and testing, viz. annex)
         type: string
         format: date
         example: "2021-04-04"
-      vu:
+      vu: 
         title: valid until
         description: Certificate valid until (optional for vaccination and testing, viz. annex)
         type: string
         format: date
         example: "2021-06-04"
-      co:
+      co: 
         title: Issuing authority country
         description: Country of the issuing authority (optional for vaccination and testing, viz. annex)
         type: string
         example: AT
-      vr:
+      vr: 
         title: Schema version
         description: Version of the schema (optional, viz. annex)
         type: string
         example: v1.0
       ty:
         title: Schema type
-        description: Define schema type for easier detection for applicatione (e.g. smartphone wallets).
-          Can also be used to refer to schemas with less data fields e.g. for privacy issues.
+        description: Define schema type for easier detection for applicatione (e.g. smartphone wallets). 
+          Can also be used to refer to schemas with less data fields e.g. for privacy issues. 
         type: string
         example: vac tst rec ... for usecases defined by the EU ...
