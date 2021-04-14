@@ -30,7 +30,7 @@
         <repository>
             <id>github</id>
             <name>GitHub Packages</name>
-            <url>https://maven.pkg.github.com/io.github.ehn-digital-green-development/hcert-java</url>
+            <url>https://maven.pkg.github.com/ehn-digital-green-development/hcert-java</url>
         </repository>
     </distributionManagement>
 
