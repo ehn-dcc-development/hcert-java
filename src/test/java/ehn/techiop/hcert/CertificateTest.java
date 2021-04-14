@@ -3,6 +3,7 @@ package ehn.techiop.hcert;
 import COSE.AlgorithmID;
 import COSE.CoseException;
 import COSE.OneKey;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ehn.techiop.hcert.model.CertificatePayload;
 import ehn.techiop.hcert.model.Hcert;
@@ -118,73 +119,79 @@ public class CertificateTest {
         assertEquals(mapper.readTree(json), mapper.readTree(result));
     }
 
+    CertificatePayload test_0405870101 = new CertificateDSL()
+            .withSubject("Judy", "Jensen")
+            .withVaccine()
+            .withTestResult()
+            .withRecovery()
+            .build();
+
+    CertificatePayload test_0405870102 = new CertificateDSL()
+            .withSubject("Judy", "Jensen")
+            .withVaccine()
+            .withTestResult()
+            .withExpiredRecovery()
+            .build();
+
+    CertificatePayload test_0405870103 = new CertificateDSL()
+            .withSubject("Judy", "Jensen")
+            .withVaccine()
+            .withExpiredTestResult()
+            .withExpiredRecovery()
+            .build();
+
+    CertificatePayload test_0405870104 = new CertificateDSL()
+            .withSubject("Judy", "Jensen")
+            .withExpiredVaccine()
+            .withExpiredTestResult()
+            .withExpiredRecovery()
+            .build();
+
+    CertificatePayload test_0405870105 = new CertificateDSL()
+            .withSubject("Judy", "Jensen")
+            .withExpiredVaccine()
+            .withTestResult()
+            .withExpiredRecovery()
+            .build();
+
+    CertificatePayload test_0405870106 = new CertificateDSL()
+            .withSubject("Judy", "Jensen")
+            .withExpiredVaccine()
+            .withTestResult()
+            .withRecovery()
+            .build();
+
+    CertificatePayload test_0405870107 = new CertificateDSL()
+            .withSubject("Judy", "Jensen")
+            .withVaccine()
+            .withExpiredTestResult()
+            .withRecovery()
+            .build();
+
+    CertificatePayload test_0405870108 = new CertificateDSL()
+            .withSubject("Judy", "Jensen")
+            .withExpiredVaccine()
+            .withExpiredTestResult()
+            .withRecovery()
+            .build();
+
+    CertificatePayload test_0405870109 = new CertificateDSL()
+            .withSubject("Judy", "Jensen")
+            .withExpiredVaccine()
+            .withExpiredTestResult()
+            .withRecovery()
+            .expiredBuild();
+
     @Test
-    void testSet()
-    {
+    void testSetDKExample() throws IOException, CompressorException, CoseException {
 
-        CertificatePayload one = new CertificateDSL()
-                .withSubject("Judy", "Jensen")
-                .withVaccine()
-                .withTestResult()
-                .withRecovery()
-                .build();
+        String input = new ObjectMapper().writeValueAsString(test_0405870101);
 
-        CertificatePayload two = new CertificateDSL()
-                .withSubject("Judy", "Jensen")
-                .withVaccine()
-                .withTestResult()
-                .withExpiredRecovery()
-                .build();
+        String encoded = new GreenCertificateEncoder(cborPrivateKey, UUID.randomUUID().toString()).encode(input);
+        String result = new GreenCertificateDecoder(cborPublicKey).decode(encoded);
 
-        CertificatePayload three = new CertificateDSL()
-                .withSubject("Judy", "Jensen")
-                .withVaccine()
-                .withExpiredTestResult()
-                .withExpiredRecovery()
-                .build();
-
-        CertificatePayload four = new CertificateDSL()
-                .withSubject("Judy", "Jensen")
-                .withExpiredVaccine()
-                .withExpiredTestResult()
-                .withExpiredRecovery()
-                .build();
-
-        CertificatePayload five = new CertificateDSL()
-                .withSubject("Judy", "Jensen")
-                .withExpiredVaccine()
-                .withTestResult()
-                .withExpiredRecovery()
-                .build();
-
-        CertificatePayload six = new CertificateDSL()
-                .withSubject("Judy", "Jensen")
-                .withExpiredVaccine()
-                .withTestResult()
-                .withRecovery()
-                .build();
-
-        CertificatePayload seven = new CertificateDSL()
-                .withSubject("Judy", "Jensen")
-                .withVaccine()
-                .withExpiredTestResult()
-                .withRecovery()
-                .build();
-
-        CertificatePayload eight = new CertificateDSL()
-                .withSubject("Judy", "Jensen")
-                .withExpiredVaccine()
-                .withExpiredTestResult()
-                .withRecovery()
-                .build();
-
-        CertificatePayload nine = new CertificateDSL()
-                .withSubject("Judy", "Jensen")
-                .withExpiredVaccine()
-                .withExpiredTestResult()
-                .withRecovery()
-                .expiredBuild();
-
+        ObjectMapper mapper = new ObjectMapper();
+        assertEquals(mapper.readTree(input), mapper.readTree(result));
     }
 
 }
