@@ -1,16 +1,19 @@
 package ehn.techiop.hcert;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import COSE.AlgorithmID;
 import COSE.CoseException;
 import COSE.OneKey;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import ehn.techiop.hcert.model.CertificatePayload;
+import ehn.techiop.hcert.model.Hcert;
 import ehn.techiop.hcert.schema.EuHcertV1Schema;
 import ehn.techiop.hcert.schema.Sub;
 import ehn.techiop.hcert.schema.Tst;
 import ehn.techiop.hcert.schema.Vac;
+import org.apache.commons.compress.compressors.CompressorException;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.security.KeyPair;
@@ -22,10 +25,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import org.apache.commons.compress.compressors.CompressorException;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class CertificateTest {
 
@@ -66,14 +67,15 @@ public class CertificateTest {
                 .withTst(tests)
                 .withVac(vacs);
 
-        CWT cwt = new CWT();
+
+        CertificatePayload certificatePayload = new CertificatePayload();
         Hcert hcert = new Hcert();
         hcert.setEuHcertV1Schema(euvac);
-        cwt.setHcert(hcert);
-        cwt.setExp(new Date().getTime() / 1000);
-        cwt.setIat(new Date().getTime() / 1000);
-        cwt.setIss("DNK");
-        json = new ObjectMapper().writeValueAsString(cwt);
+        certificatePayload.setHcert(hcert);
+        certificatePayload.setExp(new Date().getTime() / 1000);
+        certificatePayload.setIat(new Date().getTime() / 1000);
+        certificatePayload.setIss("DNK");
+        json = new ObjectMapper().writeValueAsString(certificatePayload);
     }
 
     @Test
@@ -115,4 +117,74 @@ public class CertificateTest {
         ObjectMapper mapper = new ObjectMapper();
         assertEquals(mapper.readTree(json), mapper.readTree(result));
     }
+
+    @Test
+    void testSet()
+    {
+
+        CertificatePayload one = new CertificateDSL()
+                .withSubject("Judy", "Jensen")
+                .withVaccine()
+                .withTestResult()
+                .withRecovery()
+                .build();
+
+        CertificatePayload two = new CertificateDSL()
+                .withSubject("Judy", "Jensen")
+                .withVaccine()
+                .withTestResult()
+                .withExpiredRecovery()
+                .build();
+
+        CertificatePayload three = new CertificateDSL()
+                .withSubject("Judy", "Jensen")
+                .withVaccine()
+                .withExpiredTestResult()
+                .withExpiredRecovery()
+                .build();
+
+        CertificatePayload four = new CertificateDSL()
+                .withSubject("Judy", "Jensen")
+                .withExpiredVaccine()
+                .withExpiredTestResult()
+                .withExpiredRecovery()
+                .build();
+
+        CertificatePayload five = new CertificateDSL()
+                .withSubject("Judy", "Jensen")
+                .withExpiredVaccine()
+                .withTestResult()
+                .withExpiredRecovery()
+                .build();
+
+        CertificatePayload six = new CertificateDSL()
+                .withSubject("Judy", "Jensen")
+                .withExpiredVaccine()
+                .withTestResult()
+                .withRecovery()
+                .build();
+
+        CertificatePayload seven = new CertificateDSL()
+                .withSubject("Judy", "Jensen")
+                .withVaccine()
+                .withExpiredTestResult()
+                .withRecovery()
+                .build();
+
+        CertificatePayload eight = new CertificateDSL()
+                .withSubject("Judy", "Jensen")
+                .withExpiredVaccine()
+                .withExpiredTestResult()
+                .withRecovery()
+                .build();
+
+        CertificatePayload nine = new CertificateDSL()
+                .withSubject("Judy", "Jensen")
+                .withExpiredVaccine()
+                .withExpiredTestResult()
+                .withRecovery()
+                .expiredBuild();
+
+    }
+
 }

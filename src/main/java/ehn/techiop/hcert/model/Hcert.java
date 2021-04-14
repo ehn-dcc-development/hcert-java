@@ -1,4 +1,4 @@
-package ehn.techiop.hcert;
+package ehn.techiop.hcert.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import ehn.techiop.hcert.schema.EuHcertV1Schema;

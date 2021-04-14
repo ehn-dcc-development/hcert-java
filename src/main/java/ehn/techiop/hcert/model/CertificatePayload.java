@@ -1,8 +1,8 @@
-package ehn.techiop.hcert;
+package ehn.techiop.hcert.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class CWT {
+public class CertificatePayload {
 
     @JsonProperty("1")
     private String iss;
@@ -48,4 +48,5 @@ public class CWT {
     public void setHcert(Hcert hcert) {
         this.hcert = hcert;
     }
+
 }
