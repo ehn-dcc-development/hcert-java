@@ -43,6 +43,13 @@
         </dependency>
 
         <dependency>
+            <groupId>com.upokecenter</groupId>
+            <artifactId>cbor</artifactId>
+            <version>4.3.0</version>
+        </dependency>
+
+
+        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-compress</artifactId>
             <version>1.20</version>
@@ -54,11 +61,18 @@
             <version>0.0.3</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/javax.validation/validation-api -->
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+            <version>2.0.1.Final</version>
+        </dependency>
+
+
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>2.12.2</version>
-            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -88,59 +102,25 @@
 
         <plugins>
 
-            <plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.8</version>
-                <executions>
-                    <execution>
-                        <phase>initialize</phase>
-                        <configuration>
-                            <target>
-                                <mkdir dir="${basedir}/src/main/resources/schema" />
-                            </target>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
 
-            <plugin>
-                <groupId>com.googlecode.maven-download-plugin</groupId>
-                <artifactId>download-maven-plugin</artifactId>
-                <version>1.6.1</version>
-                <executions>
-                    <execution>
-                        <id>get-schema-yml</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>wget</goal>
-                        </goals>
-
-                    </execution>
-                </executions>
-                <configuration>
-                    <url>
-                        https://raw.githubusercontent.com/ehn-digital-green-development/hcert-schema/main/eu_hcert_v1_schema.yaml
-                    </url>
-                    <outputDirectory>${basedir}/src/main/resources/schema</outputDirectory>
-                </configuration>
-            </plugin>
 
             <plugin>
                 <groupId>org.jsonschema2pojo</groupId>
                 <artifactId>jsonschema2pojo-maven-plugin</artifactId>
                 <version>1.1.0</version>
                 <configuration>
-                    <sourceDirectory>${basedir}/src/main/resources</sourceDirectory>
-                    <targetPackage>ehn.techiop.hcert</targetPackage>
+                    <sourceDirectory>${basedir}/src/main/resources/schema</sourceDirectory>
+                    <includeAdditionalProperties>false</includeAdditionalProperties>
+                    <targetPackage>ehn.techiop.healthCertificate</targetPackage>
                     <sourceType>yamlschema</sourceType>
                     <formatDates>true</formatDates>
                     <generateBuilders>true</generateBuilders>
                     <inclusionLevel>NON_EMPTY</inclusionLevel>
-
+                    <includeJsr303Annotations>true</includeJsr303Annotations>
+                    <includeConstructors>true</includeConstructors>
+                    <useTitleAsClassname>true</useTitleAsClassname>
                 </configuration>
+
                 <executions>
                     <execution>
                         <phase>generate-sources</phase>

@@ -14,7 +14,7 @@ public class CertificatePayload {
     private long exp;
 
     @JsonProperty("-260")
-    private Hcert hcert;
+    private HealthCertificate healthCertificate;
 
 
     public String getIss() {
@@ -41,12 +41,12 @@ public class CertificatePayload {
         this.exp = exp;
     }
 
-    public Hcert getHcert() {
-        return hcert;
+    public HealthCertificate getHcert() {
+        return healthCertificate;
     }
 
-    public void setHcert(Hcert hcert) {
-        this.hcert = hcert;
+    public void setHcert(HealthCertificate healthCertificate) {
+        this.healthCertificate = healthCertificate;
     }
 
 }
