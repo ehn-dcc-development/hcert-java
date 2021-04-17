@@ -111,7 +111,7 @@
                 <configuration>
                     <sourceDirectory>${basedir}/src/main/resources/schema</sourceDirectory>
                     <includeAdditionalProperties>false</includeAdditionalProperties>
-                    <targetPackage>ehn.techiop.healthCertificate</targetPackage>
+                    <targetPackage>ehn.techiop.hcert</targetPackage>
                     <sourceType>yamlschema</sourceType>
                     <formatDates>true</formatDates>
                     <generateBuilders>true</generateBuilders>
@@ -120,10 +120,8 @@
                     <includeConstructors>true</includeConstructors>
                     <useTitleAsClassname>true</useTitleAsClassname>
                 </configuration>
-
                 <executions>
                     <execution>
-                        <phase>generate-sources</phase>
                         <goals>
                             <goal>generate</goal>
                         </goals>
