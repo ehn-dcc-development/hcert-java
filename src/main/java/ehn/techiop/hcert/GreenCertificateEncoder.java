@@ -1,32 +1,35 @@
 package ehn.techiop.hcert;
 
 import COSE.Attribute;
-import COSE.AlgorithmID;
 import COSE.CoseException;
 import COSE.HeaderKeys;
 import COSE.KeyKeys;
 import COSE.OneKey;
 import COSE.Sign1Message;
 import com.upokecenter.cbor.CBORObject;
-import java.security.PrivateKey;
-import java.security.interfaces.RSAPrivateCrtKey;
 import org.apache.commons.compress.compressors.CompressorException;
 import org.apache.commons.compress.compressors.CompressorOutputStream;
 import org.apache.commons.compress.compressors.CompressorStreamFactory;
 
 import nl.minvws.encoding.Base45;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.UUID;
 
 public class GreenCertificateEncoder {
 
     private final OneKey privateKey;
-    private String kid;
+    private final String kid;
+    private final String prefix;
 
     public GreenCertificateEncoder(OneKey privateKey, String kid) {
+        this(privateKey, kid, "HC1");
+    }
+
+    public GreenCertificateEncoder(OneKey privateKey, String kid, String prefix) {
         this.privateKey = privateKey;
         this.kid = kid;
+        this.prefix = prefix;
     }
 
     /**
@@ -40,21 +43,21 @@ public class GreenCertificateEncoder {
      */
     public String encode(String json) throws CoseException, CompressorException, IOException {
 
-        byte[] cborBytes = getCborBytes(json);
+        byte[] cborBytes = toCBORbytes(json);
 
         byte[] coseBytes = getCOSEBytes(cborBytes);
 
-        byte[] deflateBytes = getDeflateBytes(coseBytes);
+        byte[] deflateBytes = compress(coseBytes);
 
         return getBase45(deflateBytes);
     }
 
     private String getBase45(byte[] deflateBytes) {
 
-        return "HC1" + Base45.getEncoder().encodeToString(deflateBytes);
+        return prefix + Base45.getEncoder().encodeToString(deflateBytes);
     }
 
-    private byte[] getDeflateBytes(byte[] messageBytes) throws CompressorException, IOException {
+    private byte[] compress(byte[] messageBytes) throws CompressorException, IOException {
         ByteArrayOutputStream deflateOutputStream = new ByteArrayOutputStream();
         try (CompressorOutputStream deflateOut = new CompressorStreamFactory()
                 .createCompressorOutputStream(CompressorStreamFactory.DEFLATE, deflateOutputStream)) {
@@ -75,9 +78,8 @@ public class GreenCertificateEncoder {
         return msg.EncodeToBytes();
     }
 
-    private byte[] getCborBytes(String json) {
+    private byte[] toCBORbytes(String json) {
         CBORObject cborObject = CBORObject.FromJSONString(json);
-
         return cborObject.EncodeToBytes();
     }
 }

@@ -3,24 +3,19 @@ package ehn.techiop.hcert;
 import COSE.AlgorithmID;
 import COSE.CoseException;
 import COSE.OneKey;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ehn.techiop.hcert.model.CertificatePayload;
-import ehn.techiop.hcert.model.Hcert;
-import ehn.techiop.hcert.schema.EuHcertV1Schema;
-import ehn.techiop.hcert.schema.Sub;
-import ehn.techiop.hcert.schema.Tst;
-import ehn.techiop.hcert.schema.Vac;
+import ehn.techiop.hcert.model.HealthCertificate;
 import org.apache.commons.compress.compressors.CompressorException;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.Security;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -43,15 +38,15 @@ public class CertificateTest {
 
 
         List<Vac> vacs = new ArrayList<>();
-
-        Tst tests = new Tst()
+        List<Tst> tests = new ArrayList<>();
+        Tst test = new Tst()
                 .withDis("840539006")
                 .withTyp("LP6464-4")
                 .withTna("Nucleic acid amplification with probe detection")
                 .withTma("BIOSYNEX SWISS SA BIOSYNEX COVID-19 Ag BSS")
                 .withOri("258500001")
-                .withDtr(new Date())
-                .withDts(new Date())
+                .withDtr(Math.toIntExact(LocalDateTime.now().minusDays(1).toEpochSecond(ZoneOffset.UTC)))
+                .withDts(Math.toIntExact(LocalDateTime.now().minusHours(4).toEpochSecond(ZoneOffset.UTC)))
                 .withRes("1240591000000102")
                 .withFac("Region Midtjylland")
                 .withCou("DNK");
@@ -63,16 +58,18 @@ public class CertificateTest {
                 .withDat("2021-02-20")
                 .withAdm("Region Halland"));
 
-        EuHcertV1Schema euvac = new EuHcertV1Schema()
+        tests.add(test);
+
+        DigitalGreenCertificate euvac = new DigitalGreenCertificate()
                 .withSub(new Sub().withGn("Gaby").withFn("Doe"))
                 .withTst(tests)
                 .withVac(vacs);
 
 
         CertificatePayload certificatePayload = new CertificatePayload();
-        Hcert hcert = new Hcert();
-        hcert.setEuHcertV1Schema(euvac);
-        certificatePayload.setHcert(hcert);
+        HealthCertificate healthCertificate = new HealthCertificate();
+        healthCertificate.setDigitalGreenCertificate(euvac);
+        certificatePayload.setHcert(healthCertificate);
         certificatePayload.setExp(new Date().getTime() / 1000);
         certificatePayload.setIat(new Date().getTime() / 1000);
         certificatePayload.setIss("DNK");
@@ -83,7 +80,7 @@ public class CertificateTest {
     void roundtrip() throws CompressorException, CoseException, IOException {
 
         String encoded = new GreenCertificateEncoder(cborPrivateKey, UUID.randomUUID().toString()).encode(json);
-        String result = new GreenCertificateDecoder(cborPublicKey).decode(encoded);
+        String result = new GreenCertificateDecoder((kid, issuer) -> cborPublicKey.AsPublicKey()).decode(encoded);
 
         ObjectMapper mapper = new ObjectMapper();
         assertEquals(mapper.readTree(json), mapper.readTree(result));
@@ -98,7 +95,7 @@ public class CertificateTest {
         String encoded = new GreenCertificateEncoder(cborPrivateKey, UUID.randomUUID().toString()).encode(json);
 
         Exception exception = assertThrows(RuntimeException.class,
-                () -> new GreenCertificateDecoder(anotherPublicKey).decode(encoded));
+                () -> new GreenCertificateDecoder((kid, issuer) -> anotherPublicKey.AsPublicKey()).decode(encoded));
         assertEquals("Could not verify COSE signature", exception.getMessage());
 
     }
@@ -108,13 +105,10 @@ public class CertificateTest {
 
         Security.insertProviderAt(new BouncyCastleProvider(), 1);
 
-        KeyPairGenerator gen = KeyPairGenerator.getInstance("RSA");
-        gen.initialize(2048);
-        KeyPair keyPair = gen.genKeyPair();
         OneKey keys = OneKey.generateKey(AlgorithmID.RSA_PSS_256);
 
         String encoded = new GreenCertificateEncoder(keys, UUID.randomUUID().toString()).encode(json);
-        String result = new GreenCertificateDecoder(keys).decode(encoded);
+        String result = new GreenCertificateDecoder((kid, issuer) -> keys.AsPublicKey()).decode(encoded);
         ObjectMapper mapper = new ObjectMapper();
         assertEquals(mapper.readTree(json), mapper.readTree(result));
     }
@@ -188,7 +182,7 @@ public class CertificateTest {
         String input = new ObjectMapper().writeValueAsString(test_0405870101);
 
         String encoded = new GreenCertificateEncoder(cborPrivateKey, UUID.randomUUID().toString()).encode(input);
-        String result = new GreenCertificateDecoder(cborPublicKey).decode(encoded);
+        String result = new GreenCertificateDecoder((kid, issuer) -> cborPublicKey.AsPublicKey()).decode(encoded);
 
         ObjectMapper mapper = new ObjectMapper();
         assertEquals(mapper.readTree(input), mapper.readTree(result));

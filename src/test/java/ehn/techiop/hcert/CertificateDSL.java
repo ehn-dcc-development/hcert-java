@@ -1,8 +1,7 @@
 package ehn.techiop.hcert;
 
 import ehn.techiop.hcert.model.CertificatePayload;
-import ehn.techiop.hcert.model.Hcert;
-import ehn.techiop.hcert.schema.*;
+import ehn.techiop.hcert.model.HealthCertificate;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -14,10 +13,10 @@ public class CertificateDSL {
 
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-    private final EuHcertV1Schema euHcertV1Schema;
+    private final DigitalGreenCertificate digitalGreenCertificate;
 
     public CertificateDSL() {
-        euHcertV1Schema = new EuHcertV1Schema();
+        digitalGreenCertificate = new DigitalGreenCertificate();
     }
 
     public CertificateDSL withVaccine() {
@@ -41,7 +40,7 @@ public class CertificateDSL {
                 .withTot(2)
                 .withDat(dateFormatter.format(LocalDate.now().minusDays(7)))
                 .withCou("DK"));
-        euHcertV1Schema.withVac(vacs);
+        digitalGreenCertificate.withVac(vacs);
         return this;
     }
 
@@ -51,21 +50,18 @@ public class CertificateDSL {
 
     public CertificateDSL withTestResult() {
 
-        Date sampleDate = convert(LocalDateTime.now().minusDays(1));
-        Date testResult = convert(LocalDateTime.now().minusHours(4));
-
         Tst test = new Tst()
                 .withDis("840539006")
                 .withTyp("LP6464-4")
                 .withTna("Nucleic acid amplification with probe detection")
                 .withTma("BIOSYNEX SWISS SA BIOSYNEX COVID-19 Ag BSS")
                 .withOri("258500001")
-                .withDtr(sampleDate)
-                .withDts(testResult)
+                .withDtr(Math.toIntExact(LocalDateTime.now().minusDays(1).toEpochSecond(ZoneOffset.UTC)))
+                .withDts(Math.toIntExact(LocalDateTime.now().minusHours(4).toEpochSecond(ZoneOffset.UTC)))
                 .withRes("1240591000000102")
                 .withFac("Region Midtjylland")
                 .withCou("DK");
-        euHcertV1Schema.withTst(test);
+        digitalGreenCertificate.getTst().add(test);
         return this;
     }
 
@@ -76,13 +72,13 @@ public class CertificateDSL {
                 .withDat(dateFormatter.format(LocalDate.now().minusDays(21)))
                 .withCou("DK");
 
-        euHcertV1Schema.withRec(recovery);
+        digitalGreenCertificate.getRec().add(recovery);
         return this;
     }
 
     public CertificateDSL withSubject(String givenName, String familyName) {
 
-        euHcertV1Schema.withSub(new Sub()
+        digitalGreenCertificate.withSub(new Sub()
                 .withGn(givenName)
                 .withFn(familyName)
                 .withGen("female")
@@ -102,26 +98,37 @@ public class CertificateDSL {
         certificatePayload.setIat(issuedAt.toEpochSecond(ZoneOffset.UTC));
         certificatePayload.setExp(expires.toEpochSecond(ZoneOffset.UTC));
 
-        Hcert hcert = new Hcert();
-        hcert.setEuHcertV1Schema(euHcertV1Schema);
-        certificatePayload.setHcert(hcert);
+        HealthCertificate healthCertificate = new HealthCertificate();
+        healthCertificate.setDigitalGreenCertificate(digitalGreenCertificate);
+        certificatePayload.setHcert(healthCertificate);
         return certificatePayload;
     }
 
     public CertificateDSL withExpiredRecovery() {
-        withRecovery();
-        euHcertV1Schema.getRec().setDat(dateFormatter.format(LocalDate.now().minusYears(1)));
+
+        Rec recovery = new Rec()
+                .withDis("840539006")
+                .withDat(dateFormatter.format(LocalDate.now().minusYears(1)))
+                .withCou("DK");
+        digitalGreenCertificate.getRec().add(recovery);
         return this;
     }
 
     public CertificateDSL withExpiredTestResult() {
-        withTestResult();
+        Tst test = new Tst()
+                .withDis("840539006")
+                .withTyp("LP6464-4")
+                .withTna("Nucleic acid amplification with probe detection")
+                .withTma("BIOSYNEX SWISS SA BIOSYNEX COVID-19 Ag BSS")
+                .withOri("258500001")
+                .withDtr(Math.toIntExact(LocalDateTime.now().minusDays(5).toEpochSecond(ZoneOffset.UTC)))
+                .withDts(Math.toIntExact(LocalDateTime.now().minusDays(4).toEpochSecond(ZoneOffset.UTC)))
+                .withRes("1240591000000102")
+                .withFac("Region Midtjylland")
+                .withCou("DK");
 
-        Date sampleDate = convert(LocalDateTime.now().minusDays(5));
-        Date testResult = convert(LocalDateTime.now().minusDays(4));
 
-        euHcertV1Schema.getTst().setDtr(sampleDate);
-        euHcertV1Schema.getTst().setDts(testResult);
+        digitalGreenCertificate.getTst().add(test);
 
         return this;
     }
@@ -147,7 +154,7 @@ public class CertificateDSL {
                 .withTot(2)
                 .withDat(dateFormatter.format(LocalDate.now().minusDays(272)))
                 .withCou("DK"));
-        euHcertV1Schema.withVac(vacs);
+        digitalGreenCertificate.withVac(vacs);
         return this;
     }
 
