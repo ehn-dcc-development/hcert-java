@@ -4,22 +4,30 @@ import COSE.AlgorithmID;
 import COSE.CoseException;
 import COSE.OneKey;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import ehn.techiop.hcert.model.CertificatePayload;
 import ehn.techiop.hcert.model.HealthCertificate;
 import org.apache.commons.compress.compressors.CompressorException;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.x509.X509V1CertificateGenerator;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import se.digg.dgc.payload.v1.DGCSchemaException;
+import se.digg.dgc.service.impl.DefaultDGCEncoder;
+import se.digg.dgc.signatures.impl.DefaultDGCSigner;
 
+import javax.security.auth.x500.X500Principal;
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.security.Security;
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.security.*;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -79,7 +87,7 @@ public class CertificateTest {
     @Test
     void roundtrip() throws CompressorException, CoseException, IOException {
 
-        String encoded = new GreenCertificateEncoder(cborPrivateKey, UUID.randomUUID().toString()).encode(json);
+        String encoded = new GreenCertificateEncoder(cborPrivateKey, UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8)).encode(json);
         String result = new GreenCertificateDecoder((kid, issuer) -> cborPublicKey.AsPublicKey()).decode(encoded);
 
         ObjectMapper mapper = new ObjectMapper();
@@ -92,7 +100,7 @@ public class CertificateTest {
 
         OneKey anotherPublicKey = OneKey.generateKey(AlgorithmID.ECDSA_256).PublicKey();
 
-        String encoded = new GreenCertificateEncoder(cborPrivateKey, UUID.randomUUID().toString()).encode(json);
+        String encoded = new GreenCertificateEncoder(cborPrivateKey, UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8)).encode(json);
 
         Exception exception = assertThrows(RuntimeException.class,
                 () -> new GreenCertificateDecoder((kid, issuer) -> anotherPublicKey.AsPublicKey()).decode(encoded));
@@ -107,7 +115,7 @@ public class CertificateTest {
 
         OneKey keys = OneKey.generateKey(AlgorithmID.RSA_PSS_256);
 
-        String encoded = new GreenCertificateEncoder(keys, UUID.randomUUID().toString()).encode(json);
+        String encoded = new GreenCertificateEncoder(keys, UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8)).encode(json);
         String result = new GreenCertificateDecoder((kid, issuer) -> keys.AsPublicKey()).decode(encoded);
         ObjectMapper mapper = new ObjectMapper();
         assertEquals(mapper.readTree(json), mapper.readTree(result));
@@ -170,7 +178,7 @@ public class CertificateTest {
             .build();
 
     CertificatePayload test_0405870109 = new CertificateDSL()
-            .withSubject("Judy", "Jensen")
+            .withSubject("Øjvind", "Ørn")
             .withExpiredVaccine()
             .withExpiredTestResult()
             .withRecovery()
@@ -181,11 +189,58 @@ public class CertificateTest {
 
         String input = new ObjectMapper().writeValueAsString(test_0405870101);
 
-        String encoded = new GreenCertificateEncoder(cborPrivateKey, UUID.randomUUID().toString()).encode(input);
+        String encoded = new GreenCertificateEncoder(cborPrivateKey, UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8)).encode(input);
         String result = new GreenCertificateDecoder((kid, issuer) -> cborPublicKey.AsPublicKey()).decode(encoded);
 
         ObjectMapper mapper = new ObjectMapper();
         assertEquals(mapper.readTree(input), mapper.readTree(result));
     }
 
+    @Test
+    void testAgainstDGCJava() throws CertificateException, IOException, NoSuchAlgorithmException, DGCSchemaException, SignatureException, CompressorException, CoseException, NoSuchProviderException, InvalidKeyException {
+
+        Security.insertProviderAt(new BouncyCastleProvider(), 1);
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA", "BC");
+        keyPairGenerator.initialize(2048, new SecureRandom());
+
+        KeyPair keyPair = keyPairGenerator.generateKeyPair();
+        Certificate certificate = generateCertificate(keyPair);
+
+
+        se.digg.dgc.payload.v1.DigitalGreenCertificate testData = DefaultDGCExample.getTestDGC();
+        DefaultDGCEncoder encoder = new DefaultDGCEncoder(new DefaultDGCSigner(keyPair.getPrivate(), (X509Certificate) certificate));
+        String bytes = encoder.encode(testData, LocalDateTime.now().toInstant(ZoneOffset.UTC));
+        String result = new GreenCertificateDecoder((kid, issuer) -> certificate.getPublicKey()).decode(bytes);
+
+
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+
+        mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+
+
+        DigitalGreenCertificate dgcResult = mapper.readValue(result, CertificatePayload.class).getHcert().getDigitalGreenCertificate();
+        assertEquals( mapper.valueToTree(testData), mapper.valueToTree(dgcResult));
+    }
+
+
+
+    public static Certificate generateCertificate(KeyPair keyPair) throws CertificateException, NoSuchAlgorithmException, SignatureException, NoSuchProviderException, InvalidKeyException {
+        // yesterday
+        Date validityBeginDate = new Date(System.currentTimeMillis() - 24 * 60 * 60 * 1000);
+        // in 2 years
+        Date validityEndDate = new Date(System.currentTimeMillis() + 2 * 365 * 24 * 60 * 60 * 1000);
+
+        X509V1CertificateGenerator certGen = new X509V1CertificateGenerator();
+        X500Principal dnName = new X500Principal("CN=John Doe, C=DK");
+        certGen.setSerialNumber(BigInteger.valueOf(System.currentTimeMillis()));
+        certGen.setSubjectDN(dnName);
+        certGen.setIssuerDN(dnName); // use the same
+        certGen.setNotBefore(validityBeginDate);
+        certGen.setNotAfter(validityEndDate);
+        certGen.setPublicKey(keyPair.getPublic());
+        certGen.setSignatureAlgorithm("SHA256WithRSAEncryption");
+        return certGen.generate(keyPair.getPrivate(), "BC");
+
+    }
 }

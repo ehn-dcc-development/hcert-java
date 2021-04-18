@@ -19,14 +19,14 @@ import java.io.IOException;
 public class GreenCertificateEncoder {
 
     private final OneKey privateKey;
-    private final String kid;
+    private final byte[] kid;
     private final String prefix;
 
-    public GreenCertificateEncoder(OneKey privateKey, String kid) {
+    public GreenCertificateEncoder(OneKey privateKey, byte[] kid) {
         this(privateKey, kid, "HC1");
     }
 
-    public GreenCertificateEncoder(OneKey privateKey, String kid, String prefix) {
+    public GreenCertificateEncoder(OneKey privateKey, byte[] kid, String prefix) {
         this.privateKey = privateKey;
         this.kid = kid;
         this.prefix = prefix;
