@@ -4,6 +4,8 @@ import static org.apache.commons.compress.utils.IOUtils.toByteArray;
 
 import COSE.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.upokecenter.cbor.CBORObject;
 
 import java.io.ByteArrayInputStream;
@@ -55,7 +57,7 @@ public class GreenCertificateDecoder {
     private String toJsonPayload(byte[] coseBytes) throws CoseException, IOException {
         Sign1Message msg = (Sign1Message) Message.DecodeFromBytes(coseBytes, MessageTag.Sign1);
 
-        String kid = msg.getProtectedAttributes().get(HeaderKeys.KID.AsCBOR()).AsString();
+        byte[] kid = msg.getProtectedAttributes().get(HeaderKeys.KID.AsCBOR()).GetByteString();
 
         CBORObject cborObject = CBORObject.DecodeFromBytes(msg.GetContent());
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -64,6 +66,8 @@ public class GreenCertificateDecoder {
         String json = byteArrayOutputStream.toString("UTF-8");
 
         ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
         CertificatePayload certificatePayload = objectMapper.readValue(json, CertificatePayload.class);
         String issuer = certificatePayload.getIss();
 

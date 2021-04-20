@@ -26,6 +26,12 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+    <repositories>
+        <repository>
+            <id>staging</id>
+            <url>https://s01.oss.sonatype.org/content/groups/staging</url>
+        </repository>
+    </repositories>
     <distributionManagement>
         <repository>
             <id>github</id>
@@ -75,6 +81,14 @@
             <version>2.12.2</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jsr310 -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>2.12.2</version>
+        </dependency>
+
+
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
@@ -90,6 +104,12 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>se.digg.dgc</groupId>
+            <artifactId>dgc-create-validate</artifactId>
+            <version>0.9.0</version>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -115,7 +135,7 @@
                     <sourceType>yamlschema</sourceType>
                     <formatDates>true</formatDates>
                     <generateBuilders>true</generateBuilders>
-                    <inclusionLevel>NON_EMPTY</inclusionLevel>
+                    <!--<inclusionLevel>NON_EMPTY</inclusionLevel>-->
                     <includeJsr303Annotations>true</includeJsr303Annotations>
                     <includeConstructors>true</includeConstructors>
                     <useTitleAsClassname>true</useTitleAsClassname>
