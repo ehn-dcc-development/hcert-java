@@ -46,7 +46,7 @@ public class GreenCertificateDecoder {
         if (!base45String.startsWith(prefix))
             throw new RuntimeException("Base45 string not valid according to specification");
 
-        base45String = base45String.substring(3);
+        base45String = base45String.substring(4);
         byte[] decodedBytes = Base45.getDecoder().decode(base45String);
 
         byte[] coseBytes = decompress(decodedBytes);
